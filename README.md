@@ -76,3 +76,26 @@ public String hello(){
 [**PostMan**](https://www.getpostman.com/)を使えばget,postなどのリクエストを投げることができる。  
 ただ、社内プロキシ環境ではローカルホストへのリクエストがうまく接続できない。  
 Chromeの拡張機能のPostManを使えば対応できる。（拡張機能は廃止予定だが...）
+
+
+リクエストのパラメータ受け取り方法は２種類ある。
+
+* PathVariable
+
+```java
+@GetMapping("/books/{id}/{username:[a-z_]+}")
+public Object getOne(@PathVariable long id,
+                     @PathVariable String username){}
+
+```
+
+* RequestParam
+
+```java
+@PostMapping("/books")
+public Object post(@RequestParam("name") String name,
+                   @RequestParam("author") String author,
+                   @RequestParam("isbn") String isbn
+                   // デフォルト値設定
+                   @RequestParam(value = "size",defaultValue = "10") int size){
+```
