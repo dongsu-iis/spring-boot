@@ -214,3 +214,37 @@ public class HelloController {
         return book;
     }
 ```
+
+#### 環境ごとプロパティファイル
+
+環境ごとのプロパティファイルを定義する場合、以下の命名規則で環境ごとのファイルを作成する。
+
+* 命名規則  
+application-{profile}.yml
+
+例
+
+```yml:application.yml
+spring:
+  profiles:
+    active: dev
+
+book:
+  name: インターネットの世界観
+  author: 田中洋一
+  isbn: ${random.uuid}
+  desctiption: ${book.name},この本は悪くない
+```
+
+```yml:application-dev.yml
+server:
+  port: 8080
+  #Sservlet:
+    #context-path: /api
+logging:
+  level:
+    root: debug
+    com.ds: debug
+  file: logs/debug.log
+```
+

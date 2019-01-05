@@ -1,12 +1,6 @@
-server:
-  port: 8080
-  #Sservlet:
-    #context-path: /api
-logging:
-  level:
-    root: info
-    com.lrm: debug
-  file: logs/my.log
+spring:
+  profiles:
+    active: pro
 
 book:
   name: インターネットの世界観

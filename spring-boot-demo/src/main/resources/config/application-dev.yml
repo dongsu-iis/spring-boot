@@ -1,0 +1,9 @@
+server:
+  port: 8080
+  #Sservlet:
+    #context-path: /api
+logging:
+  level:
+    root: debug
+    com.ds: debug
+  file: logs/debug.log
