@@ -99,3 +99,118 @@ public Object post(@RequestParam("name") String name,
                    // デフォルト値設定
                    @RequestParam(value = "size",defaultValue = "10") int size){
 ```
+
+### プロパティファイル
+
+resourcesの直下のapplication.propertiesファイルで設定を変更することができる。  
+※resources/configに配置しても同じく認識する
+
+```properties
+server.port=8082
+```
+
+yml形式（application.yml）プロパティファイルにすることもできる。
+
+```yml
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+logging:
+  level:
+    root: warn
+    com.lrm: debug
+  file: logs/my.log
+```
+
+#### 自己定義プロパティ
+
+自分で定義した値もプロパティファイルで利用可能。
+
+```yml
+book:
+  name: インターネットの世界観
+  author: 田中洋一
+  isbn: ${random.uuid}
+  desctiption: ${book.name},この本は悪くない
+```
+
+```java
+@Value("${book.name}")
+private String name;
+
+@Value("${book.author}")
+private String author;
+
+@Value("${book.isbn}")
+private String isbn;
+
+@Value("${book.desctiption}")
+private String desctiption;
+```
+
+定義した値をインスタンスに注入する
+
+```java
+@Component
+@ConfigurationProperties(prefix = "book")
+public class Book {
+
+    private String name;
+
+    private String author;
+
+    private String isbn;
+
+    private String desctiption;
+
+    public Book(){
+
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getDesctiption() {
+        return desctiption;
+    }
+
+    public void setDesctiption(String desctiption) {
+        this.desctiption = desctiption;
+    }
+}
+```
+
+```java
+public class HelloController {
+
+    @Autowired
+    private Book book;
+
+    @GetMapping("/books/{id}")
+    public Object getOne(@PathVariable long id){
+
+        return book;
+    }
+```

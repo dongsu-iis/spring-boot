@@ -1,5 +1,8 @@
 package com.ds.web;
 
+import com.ds.domain.Book;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +14,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1")
 public class HelloController {
+
+    @Autowired
+    private Book book;
+
+    public HelloController() {
+    }
 
     @PostMapping("/say")
     public String hello(){
@@ -46,19 +55,12 @@ public class HelloController {
     /**
      * 正規表現: {パラメータ名:正規表現}
      * @param id
-     * @param username
+     * @param
      * @return
      */
-    @GetMapping("/books/{id}/{username:[a-z_]+}")
-    public Object getOne(@PathVariable long id,@PathVariable String username){
+    @GetMapping("/books/{id}")
+    public Object getOne(@PathVariable long id){
 
-        System.out.println(" ---- id: " + id + " username: " + username);
-
-        Map<String,Object> book = new HashMap<>();
-        book.put("name","インターネットの世界観");
-        book.put("isbn","93089275230");
-        book.put("author","田中洋一");
-        book.put("username",username);
         return book;
     }
 
