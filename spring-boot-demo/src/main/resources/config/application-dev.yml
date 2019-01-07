@@ -4,6 +4,18 @@ server:
     #context-path: /api
 logging:
   level:
-    root: debug
+    root: info
     com.ds: debug
   file: logs/debug.log
+spring:
+  datasource:
+    data-username: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/book?useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
+    username: root
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+

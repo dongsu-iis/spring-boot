@@ -248,3 +248,83 @@ logging:
   file: logs/debug.log
 ```
 
+### JPA
+
+JPA(Java Prosistence API)は関係データベースのデータを扱うアプリケーションを開発するためのJava用フレームワークである。
+
+Spring Data JPAは、Java Persistence API（JPA）のリポジトリサポートを提供する。  
+JPAデータソースにアクセスする必要があるアプリケーションの開発を容易にする。
+
+#### JPA初期設定
+
+Maven（pom.xml）の参照を追加
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+</dependency>
+```
+
+プロパティファイル
+
+```yml
+spring:
+  datasource:
+    data-username: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/book?useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
+    username: root
+    password: password
+  jpa:
+    hibernate:
+      # ddl-autoをcreateに設定すると、APP起動するたび既存のデータが削除される。updateが一般的
+      ddl-auto: update
+    # SQL文の出力
+    show-sql: true
+```
+
+Entityクラス
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+
+@Entity // アノテーションEntityを注入
+public class Book {
+
+    @Id // 主キー
+    @GeneratedValue(strategy = GenerationType.AUTO) // 生成方法:自動
+    private long id;
+
+    private String name;
+
+    public Book(){
+
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+

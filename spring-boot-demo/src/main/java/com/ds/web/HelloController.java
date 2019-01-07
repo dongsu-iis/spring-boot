@@ -15,8 +15,7 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 public class HelloController {
 
-    @Autowired
-    private Book book;
+
 
     public HelloController() {
     }
@@ -27,7 +26,7 @@ public class HelloController {
     }
 
     @GetMapping("/books")
-    public Object getAll(@RequestParam("page") int page,
+            public Object getAll(@RequestParam("page") int page,
                          @RequestParam(value = "size",defaultValue = "10") int size){
 
         Map<String, Object> book = new HashMap<>();
@@ -61,7 +60,7 @@ public class HelloController {
     @GetMapping("/books/{id}")
     public Object getOne(@PathVariable long id){
 
-        return book;
+        return null;
     }
 
     @PostMapping("/books")
