@@ -74,8 +74,12 @@ public String hello(){
 ```
 
 [**PostMan**](https://www.getpostman.com/)を使えばget,postなどのリクエストを投げることができる。  
-ただ、社内プロキシ環境ではローカルホストへのリクエストがうまく接続できない。  
+ただ、社内環境ではローカルホストへのリクエストがプロキシに阻まれてうまく接続できない。  
 Chromeの拡張機能のPostManを使えば対応できる。（拡張機能は廃止予定だが...）
+
+**追記**
+
+Chromeの拡張機能[**Advanced REST client**](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo?hl=ja)は社内環境でも使える。
 
 
 リクエストのパラメータ受け取り方法は２種類ある。
@@ -295,9 +299,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity // アノテーションEntityを注入
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) //これを付けないとJsonErrorになる…
 public class Book {
 
     @Id // 主キー
@@ -328,3 +333,164 @@ public class Book {
 }
 ```
 
+
+#### JPA基本操作
+
+エンティティのリポジトリのインターフェースを作成
+
+```java
+package com.ds.domain;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BookRepository extends JpaRepository<Book,Long> {
+
+}
+```
+
+リポジトリを呼び出すサービスクラスを作成
+
+```java
+package com.ds.service;
+
+import com.ds.domain.Book;
+import com.ds.domain.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class BookService{
+
+    // リポジトリ
+    @Autowired
+    private BookRepository bookRepository;
+
+    /**
+     * 一覧取得
+     * @return
+     */
+    public List<Book> findAll(){
+        return bookRepository.findAll();
+    }
+
+    /**
+     * 新規作成or更新
+     * @param book
+     * @return
+     */
+    public Book sava(Book book){
+        return bookRepository.save(book);
+    }
+
+    /**
+     * 1件取得
+     * @param id
+     * @return
+     */
+    public Book getOne(long id){
+        return bookRepository.getOne(id);
+    }
+
+    /**
+     * 本を１冊削除
+     * @param id
+     */
+    public void deleteOne(long id){
+        bookRepository.deleteById(id);
+    }
+}
+```
+
+リクエストを受け付けるコントローラーを作成
+
+```java
+package com.ds.web;
+
+import com.ds.domain.Book;
+import com.ds.service.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1")
+public class BookApp {
+
+    // サービス
+    @Autowired
+    private BookService bookService;
+
+    /**
+     * 書籍一覧を取得
+     * @return
+     */
+    @GetMapping("/books")
+    public List<Book> getAll(){
+        return bookService.findAll();
+    }
+
+    /**
+     * 新規作成
+     * @return
+     */
+    @PostMapping("/books")
+    public Book post(Book book){
+//        Book book = new Book();
+//        book.setName(name);
+//        book.setAuthor(author);
+//        book.setDesctiption(description);
+//        book.setStatus(status);
+        return bookService.sava(book);
+    }
+
+
+    /**
+     * 本を1件を取得
+     * @param id
+     * @return
+     */
+    @GetMapping("/books/{id}")
+    public Book getOne(@PathVariable long id){
+        return bookService.getOne(id);
+    }
+
+    /**
+     * 本1件を更新
+     * @param id
+     * @param name
+     * @param author
+     * @param description
+     * @param status
+     * @return
+     */
+    @PutMapping("/books")
+    public Book update(@RequestParam long id,
+                       @RequestParam String name,
+                       @RequestParam String author,
+                       @RequestParam String description,
+                       @RequestParam int status){
+        Book book = new Book();
+        book.setId(id);
+        book.setName(name);
+        book.setAuthor(author);
+        book.setDesctiption(description);
+        book.setStatus(status);
+        return bookService.sava(book);
+    }
+
+    /**
+     * 本1件削除処理
+     * @param id
+     */
+    @DeleteMapping("/books/{id}")
+    public void deleteOne(@PathVariable long id){
+        bookService.deleteOne(id);
+    }
+}
+```
+
+**注意点**
+
+**POST**メソッドのリクエストBodyのパラメータ形式は**form-data**で問題ないが、**PUT**メソッドのリクエストBodyのパラメータ形式は**x-www-form-urlencoded**にする必要がある。
+
+実業務ではリクエストはGETとPOSTだけ使われることが多い。
