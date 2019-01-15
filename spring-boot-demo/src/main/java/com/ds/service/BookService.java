@@ -4,6 +4,8 @@ import com.ds.domain.Book;
 import com.ds.domain.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -50,13 +52,78 @@ public class BookService{
     }
 
     /**
-     *
+     * 作者検索
      * @param author
      * @return
      */
     public List<Book> findByAuthor(String author){
-       return bookRepository.findByAuthor(author);
+
+        return bookRepository.findByAuthor(author);
+    }
+
+    /**
+     * 作者と状態で検索
+     * @param author
+     * @param status
+     * @return
+     */
+    public List<Book> findByAuthorAndStatus(String author,int status){
+
+        return bookRepository.findByAuthorAndStatus(author,status);
+
     }
 
 
+    /**
+     * 説明のキーワード検索
+     * @param des
+     * @return
+     */
+    public List<Book> findByDescriptionContains(String des){
+        return bookRepository.findByDescriptionContains(des);
+    }
+
+    /**
+     * SQL検索
+     * @param len
+     * @return
+     */
+    public List<Book> findByJPQL(int len){
+        return bookRepository.findByJPQL(len);
+    }
+
+    /**
+     * スタータスのみ更新
+     * @param status
+     * @param id
+     * @return
+     */
+    public int updateByJPQL(int status,long id){
+        return bookRepository.updateByJPQL(status,id);
+    }
+
+    /**
+     * idからJPQLで削除
+     * @param id
+     * @return
+     */
+    @Transactional
+    public int deleteByJPQL(long id){
+
+        return bookRepository.deleteByJPQL(id);
+    }
+
+    /**
+     * トランザクション処理
+     * @param status
+     * @param delId
+     * @param upId
+     * @return
+     */
+    @Transactional
+    public int deleteAndUpdate(long delId, int status, long upId) {
+        int dcount = bookRepository.deleteByJPQL(delId);
+        int upcount = bookRepository.updateByJPQL(status,upId);
+        return dcount + upcount;
+    }
 }

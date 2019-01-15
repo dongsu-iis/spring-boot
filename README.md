@@ -494,3 +494,98 @@ public class BookApp {
 **POST**メソッドのリクエストBodyのパラメータ形式は**form-data**で問題ないが、**PUT**メソッドのリクエストBodyのパラメータ形式は**x-www-form-urlencoded**にする必要がある。
 
 実業務ではリクエストはGETとPOSTだけ使われることが多い。
+
+
+#### JPAの複雑な検索方法
+
+書籍の作者名から検索する場合、Repositoryで定義する。
+
+Repositoryで検索メソッドを定義する。
+
+定義方法下記の公式から参照すること。
+
+[**spring data jpa**](https://docs.spring.io/spring-data/jpa/docs/2.1.4.RELEASE/reference/html/#jpa.repositories)
+
+```java
+package com.ds.domain;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface BookRepository extends JpaRepository<Book,Long> {
+    // 自己定義したメソッド名で自動的にSQLが生成される
+     List<Book> findByAuthor(String author);
+     List<Book> findByAuthorAndStatus(String author,int status);
+     List<Book> findByDescriptionContains(String des);
+}
+```
+
+Setvice
+
+```java
+public List<Book> findByAuthor(String author){
+    return bookRepository.findByAuthor(author);
+}
+
+public List<Book> findByAuthorAndStatus(String author,int status){
+    return bookRepository.findByAuthorAndStatus(author,status);
+}
+
+public List<Book> findByDescriptionContains(String des){
+    return bookRepository.findByDescriptionContains(des);
+}
+```
+
+#### JPAのSQL検索方法
+
+直接SQLでデータを検索する場合もRepositoryで検索メソッドを定義する。
+
+```java
+// JPQL
+@Query("select b from Book b where length(b.name) > ?1 and b.status = ?2") 
+List<Book> findByJPQL(int len, int status);
+
+//生のSQL
+@Query(value = "select * from book where LENGTH(name) > ?1",nativeQuery = true) 
+List<Book> findByJPQL2(int len);
+```
+
+#### JPAのSQL更新・削除
+
+既存のJPAの更新メソッド（sava）を用いたときにデータ項目は全て更新される。  
+一部の項目のみ更新したい場合はJPQLを使用することで実現できる。
+
+戻り値のintは更新or削除した件数
+
+```java
+@Transactional // 更新のトランザクションのアノテーションが必要
+@Modifying // 更新系に必要
+@Query("update Book b set b.status = ?1 where b.id = ?2")
+int updateByJPQL(int status,long id);
+
+@Transactional
+@Modifying
+@Query("delete from Book b where b.id = ?1")
+int deleteByJPQL(long id);
+```
+
+#### JPAのトランザクション処理
+
+Service側でもトランザクション処理を定義できる。
+
+しかし、私の環境ではRollBackしない問題が発生、原因究明中・・・
+
+```java
+/**
+* トランザクション処理
+* @param status
+* @param delId
+* @param upId
+* @return
+*/
+@Transactional
+public int deleteAndUpdate(long delId, int status, long upId) {
+    int dcount = bookRepository.deleteByJPQL(delId);
+    int upcount = bookRepository.updateByJPQL(status,upId);
+    return dcount + upcount;
+}
+```

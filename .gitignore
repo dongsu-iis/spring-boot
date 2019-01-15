@@ -28,3 +28,4 @@ hs_err_pid*
 **/.gradle
 
 .DS_Store
+spring-boot-demo/logs/debug.log.2019-01-07.0.gz
