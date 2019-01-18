@@ -570,22 +570,26 @@ int deleteByJPQL(long id);
 
 #### JPAのトランザクション処理
 
-Service側でもトランザクション処理を定義できる。
-
-しかし、私の環境ではRollBackしない問題が発生、原因究明中・・・
+Service側でもトランザクション処理を定義できる。  
+@Transactional既定の設定は「実行時例外 RuntimeException」のみRollbackされる。
+検査例外のときはRollbackされない。
 
 ```java
-/**
-* トランザクション処理
-* @param status
-* @param delId
-* @param upId
-* @return
-*/
-@Transactional
-public int deleteAndUpdate(long delId, int status, long upId) {
-    int dcount = bookRepository.deleteByJPQL(delId);
-    int upcount = bookRepository.updateByJPQL(status,upId);
-    return dcount + upcount;
-}
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteAndUpdate(long delId,
+                               int status,
+                               long upId) throws Exception{
+
+        try{
+            int dcount = bookRepository.deleteByJPQL(delId);
+            int upcount = bookRepository.updateByJPQL(status,upId);
+
+            return dcount+upcount;
+
+        }catch (Exception ex){
+            throw new Exception(ex);
+
+        }
+
+    }
 ```

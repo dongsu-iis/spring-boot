@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
 
@@ -120,10 +121,21 @@ public class BookService{
      * @param upId
      * @return
      */
-    @Transactional
-    public int deleteAndUpdate(long delId, int status, long upId) {
-        int dcount = bookRepository.deleteByJPQL(delId);
-        int upcount = bookRepository.updateByJPQL(status,upId);
-        return dcount + upcount;
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteAndUpdate(long delId,
+                               int status,
+                               long upId) throws Exception{
+
+        try{
+            int dcount = bookRepository.deleteByJPQL(delId);
+            int upcount = bookRepository.updateByJPQL(status,upId);
+
+            return dcount+upcount;
+
+        }catch (Exception ex){
+            throw new Exception(ex);
+
+        }
+
     }
 }

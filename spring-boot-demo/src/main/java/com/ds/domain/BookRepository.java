@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book,Long> {
 
-     @Transactional(readOnly = true,timeout = 10)
      List<Book> findByAuthor(String author);
 
      List<Book> findByAuthorAndStatus(String author,int status);
@@ -19,6 +18,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
      //@Query("select b from Book b where length(b.name) > ?1")
      @Query(value = "select * from book where LENGTH(name) > ?1",nativeQuery = true)
      List<Book> findByJPQL(int len);
+
 
      @Transactional
      @Modifying

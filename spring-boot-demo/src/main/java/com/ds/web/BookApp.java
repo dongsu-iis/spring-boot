@@ -100,10 +100,15 @@ public class BookApp {
             @RequestParam long delId,
             @RequestParam int status,
             @RequestParam long upId
-
     ){
 
-        return bookService.deleteAndUpdate(delId,status,upId);
+        try{
+            return bookService.deleteAndUpdate(delId,status,upId);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+        return 0;
 
         //return bookService.deleteAndUpdate(delId,status,upId);
         //return bookService.deleteByJPQL(id);
