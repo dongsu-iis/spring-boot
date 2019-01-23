@@ -278,18 +278,26 @@ Maven（pom.xml）の参照を追加
 プロパティファイル
 
 ```yml
+
 spring:
   datasource:
-    data-username: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/book?useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
+    # Xampp使っているので、MariaDBのドライバー
+    data-username: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/book
     username: root
     password: password
+    connectionProperties: useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
+
   jpa:
     hibernate:
       # ddl-autoをcreateに設定すると、APP起動するたび既存のデータが削除される。updateが一般的
-      ddl-auto: update
+      ddl-auto: update 
     # SQL文の出力
     show-sql: true
+    properties:
+      hibernate:
+        # MariaDB
+        dialect: org.hibernate.dialect.MariaDBDialect
 ```
 
 Entityクラス
@@ -575,21 +583,163 @@ Service側でもトランザクション処理を定義できる。
 検査例外のときはRollbackされない。
 
 ```java
-    @Transactional(rollbackFor = Exception.class)
-    public int deleteAndUpdate(long delId,
-                               int status,
-                               long upId) throws Exception{
-
-        try{
-            int dcount = bookRepository.deleteByJPQL(delId);
-            int upcount = bookRepository.updateByJPQL(status,upId);
-
-            return dcount+upcount;
-
-        }catch (Exception ex){
-            throw new Exception(ex);
-
-        }
-
+@Transactional(rollbackFor = Exception.class)
+public int deleteAndUpdate(long delId,
+                            int status,
+                            long upId) throws Exception{
+    try{
+        int dcount = bookRepository.deleteByJPQL(delId);
+        int upcount = bookRepository.updateByJPQL(status,upId);
+        return dcount+upcount;
+    }catch (Exception ex){
+        throw new Exception(ex);
     }
+}
+```
+
+### Thymeleaf
+
+Thymeleafとはspring frameworkのHTMLのテンプレートエンジン。  
+純粋なHTMLとしても記述でき、クライアントとサーバー側の分離が可能。  
+デザイナーとプログラマが同じHTMLを共有して使用できる。
+
+#### Thymeleafの使用方法
+
+Mavenで依存関係を追加(pom.xml)
+
+Spring Bootのバージョンが2以降であれば、thymeleafはバージョン3になるので特に意識する必要はない。  
+Spring Bootのバージョンが1であれば、thymeleafはバージョン2が初期値。バージョン3を使うには公式サイトを参考すること。
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+```
+
+コントローラでthymeleafを使用
+
+```java
+@Controller // Controllerのアノテーションを注入
+public class BookController {
+
+    @GetMapping("/books")
+    public String list() {
+        return "books"; // 対象のthymeleafの名前をここで指定する
+    }
+}
+```
+
+src\maim\resources\templatesの配下にthymeleafを配置  
+ファイル名は**コントローラで指定した名前**。ここではbooks.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" >
+    <title>books</title>
+</head>
+
+<body>
+    <h1>Books List</h1>
+</body>
+</html>
+```
+
+#### Thymeleafのデータ取得
+
+コントローラでデータ取得、モデルバインディングを行う
+
+```java
+@GetMapping("/books/{id}")
+public String detail(@PathVariable long id,
+                        Model model) { // Modelを宣言
+
+    Book book = bookService.getOne(id);
+
+    if (book == null) {
+        book = new Book();
+    }
+
+    model.addAttribute("book", book); // 取得したBookオブジェクトをmodelにバインディングする
+
+    return "book";
+}
+```
+
+thymeleafで対応したモデルを表示させる。
+
+**th:** 付いているタグに注目
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Book詳細</title>
+</head>
+<body>
+
+<!-- 直接modelを指定するパターン --> 
+<div>
+    <p>
+        <strong>書籍名: </strong><span th:text="${book.name}">リーダブルコード</span>
+    </p>
+    <p>
+        <strong>作者: </strong><span th:text="${book.author}">Tom</span>
+    </p>
+    <p>
+        <strong>説明: </strong><span th:text="${book.description}">プログラマ必ず読むべき</span>
+    </p>
+    <p>
+        <strong>状態: </strong><span th:text="${book.status}">0</span>
+    </p>
+</div>
+
+<!-- 上位のタグでmodelを指定するパターン model多いとこっちのほうが書き方が楽 --> 
+<div  th:object="${book}">
+    <p>
+        <strong>書籍名: </strong><span th:text="*{name}">リーダブルコード</span>
+    </p>
+    <p>
+        <strong>作者: </strong><span th:text="*{author}">Tom</span>
+    </p>
+    <p>
+        <strong>説明: </strong><span th:text="*{description}">プログラマ必ず読むべき</span>
+    </p>
+    <p>
+        <strong>状態: </strong><span th:text="*{status}">0</span>
+    </p>
+</div>
+
+</body>
+</html>
+```
+
+#### 静的コンテンツ
+
+静的コンテンツ（boostrap,jquery）はsrc\maim\resources\static配下に配置する
+
+thymeleafでの適応は**th:** を使う
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Book詳細</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" href="../static/css/bootstrap.min.css">
+
+</head>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script th:src="@{/js/jquery-3.3.1.min.js}" src="../static/js/jquery-3.3.1.min.js"></script>
+<script th:src="@{/js/bootstrap.min.js}" src="../static/js/bootstrap.min.js"></script>
+</body>
+</html>
 ```
