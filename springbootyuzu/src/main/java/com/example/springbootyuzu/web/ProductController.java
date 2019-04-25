@@ -17,6 +17,7 @@ public class ProductController {
 
     @GetMapping("/products")
     public String newCreate(Model model) {
+        productService.findAll();
         return "products";
     }
 }
