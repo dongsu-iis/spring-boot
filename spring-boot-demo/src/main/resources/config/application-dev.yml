@@ -16,7 +16,7 @@ spring:
     username: user
     password: password
     connectionProperties: useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 
   jpa:

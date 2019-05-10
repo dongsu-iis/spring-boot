@@ -4,10 +4,9 @@ import com.ds.domain.Book;
 import com.ds.domain.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.util.Optional;
 import java.util.List;
 
 @Service
@@ -41,7 +40,12 @@ public class BookService{
      * @return
      */
     public Book getOne(long id){
+
         return bookRepository.getOne(id);
+    }
+
+    public Book findOneById(long id) {
+        return bookRepository.findById(id);
     }
 
     /**
