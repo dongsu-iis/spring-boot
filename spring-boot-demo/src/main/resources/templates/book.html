@@ -40,12 +40,14 @@
     </div>
 
     <div class="alert alert-success"th:unless="*{status == 0}">
-        <strong>ナイス</strong>あなたは既に行動してるぜ
+        <strong>ナイス: </strong>あなたは既に行動してるぜ
     </div>
 
     <div class="alert alert-warning" th:if="*{status == 0}">
-        <strong>注意</strong>まだ行動してないぜ
+        <strong>注意: </strong>まだ行動してないぜ
     </div>
+
+    <a href="javascript:history.go(-1)" class="btn btn-default">戻る</a>
 
 
 </div>

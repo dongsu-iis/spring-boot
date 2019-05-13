@@ -3,6 +3,9 @@ package com.ds.web;
 import com.ds.domain.Book;
 import com.ds.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,9 +22,11 @@ public class BookApp {
      * @return
      */
     @GetMapping("/books")
-    public List<Book> getAll(){
+    public Page<Book> getAll(@RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "1") int size){
 
-        return bookService.findAll();
+        Sort sort = new Sort(Sort.Direction.DESC,"id");
+        return bookService.findAllByPage(PageRequest.of(page,size,sort));
     }
 
     /**

@@ -17,7 +17,14 @@
 <div class="container">
 
     <h2 class="page-header">一覧表</h2>
+    <div class="alert alert-success alert-dismissable fade in" th:unless="${#strings.isEmpty(message)}">
+        <a href="#" class="close" data-dismiss="alert">&times;</a>
+        <strong>情報 : </strong>
+        <span th:text="${message}">更新されました</span>
 
+    </div>
+
+    <p class="text-right"><a href="./input.html" th:href="@{/books/input}" class="btn btn-primary">新規作成</a></p>
     <table class="table table-bordered table-striped table-hover">
 
         <thead>
@@ -27,6 +34,8 @@
             <th>作者</th>
             <th>説明</th>
             <th>状態</th>
+            <th>操作</th>
+
         </tr>
 
         </thead>
@@ -40,9 +49,12 @@
             even/odd : 奇数偶数
             first/last(bool) : 1件目,最終件
         -->
-        <tr th:each="book,iterStat:${books}">
+        <tr th:each="book,iterStat:${page.content}">
             <td th:text="${iterStat.count}">1</td>
-            <td th:text="${book.name}">書籍名</td>
+            <td>
+                <!--<a href="#" th:text="${book.name}" th:href="@{books/{id}(id=${book.id})}">書籍名</a>-->
+                <a href="#" th:text="${book.name}" th:href="@{'books/'+ ${book.id}}">書籍名</a>
+            </td>
             <td th:text="${book.author}">作者</td>
             <td th:text="${book.description}">説明</td>
 
@@ -52,10 +64,31 @@
                 <span th:case="2" class="text-success">完読</span>
                 <span th:case="*">状態</span>
             </td>
+            
+            <td>
+                <a href="#" th:href="@{/books/{id}/input(id=${book.id})}">更新</a>&nbsp;
+                <a href="#" th:href="@{/books/{id}/delete(id=${book.id})}">削除</a>
+            </td>
 
         </tr>
         </tbody>
     </table>
+
+    <nav>
+        <ul class="pagination">
+            <li class="Previous">
+                <a href="#" th:href="@{'/books?page=' + ${page.number-1}}" th:unless="${page.first}">前</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(0, page.totalPages-1)}" th:class="(${i}==${page.number}) ? 'active' : ''">
+                <a href="#" th:href="@{'/books?page=' + ${i}}">
+                    <span th:text='${i+1}'>1</span>
+                </a>
+            </li>
+            <li class="next">
+                <a href="#" th:href="@{/books(page=${page.number} + 1)}" th:unless="${page.last}">次</a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 

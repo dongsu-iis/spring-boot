@@ -743,3 +743,51 @@ thymeleafでの適応は**th:** を使う
 </body>
 </html>
 ```
+
+### Thymeleaf(分岐、反復、URL)
+
+```html
+<!-- swith文 -->
+<p th:switch="*{status}">
+    <strong>状態: </strong>
+    <span th:case="0">未読</span>
+    <span th:case="1">読書中</span>
+    <span th:case="2">完読</span>
+</p>
+
+<!-- if文 -->
+<div class="alert alert-warning" th:if="*{status == 0}">
+    <strong>注意</strong>
+</div>
+
+<div class="alert alert-success"th:unless="*{status == 0}">
+    <strong>ナイス</strong>
+</div>
+
+<!-- for文 -->
+
+<!-- iterStat 項目取得
+count : 数 1から
+index : インデックス 0から
+size : 総件数
+even/odd : 奇数偶数
+first/last(bool) : 1件目,最終件
+-->
+
+<tr th:each="book,iterStat:${books}">
+    <td th:text="${iterStat.count}">1</td>
+    <td th:text="${book.name}">書籍名</td>
+    <td th:text="${book.author}">作者</td>
+    <td th:text="${book.description}">説明</td>
+
+    <td th:switch="${book.status}">
+        <span th:case="0" class="text-danger">未読</span>
+        <span th:case="1">読書中</span>
+        <span th:case="2" class="text-success">完読</span>
+        <span th:case="*">状態</span>
+    </td>
+</tr>
+
+<!-- URL -->
+<a href="#" th:text="${book.name}" th:href="@{'books/' + ${book.id}}">書籍名</a>
+```

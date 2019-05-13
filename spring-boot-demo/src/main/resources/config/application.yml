@@ -4,6 +4,7 @@ spring:
   thymeleaf:
     mode: HTML
 
+
 book:
   name: インターネットの世界観
   author: 田中洋一
