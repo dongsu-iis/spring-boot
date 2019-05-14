@@ -3,7 +3,8 @@ services:
   db:
     build: ./docker/mysql
     image: mysql:5.7
-    restart: always
+    ## 手動起動でいいや
+    ## restart:  always
     environment:
       MYSQL_DATABASE: book
       MYSQL_USER: user
@@ -12,7 +13,11 @@ services:
     ports:
     - "3314:3306"
     volumes:
+      ## 初期SQL
     - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
+      ## 設定ファイル
     - ./docker/mysql/conf.d:/etc/mysql/conf.d
+      ## ログ
     - ./logs:/var/log/mysql
+      ## データ永続化
     - ./docker/mysql/data:/var/lib/mysql
