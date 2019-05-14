@@ -248,4 +248,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# docker
+docker/mysql/data
+
 # End of https://www.gitignore.io/api/java,macos,maven,windows,eclipse,intellij+all
