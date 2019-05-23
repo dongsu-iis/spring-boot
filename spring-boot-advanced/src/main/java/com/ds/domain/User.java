@@ -17,7 +17,7 @@ public class User {
     private Long id;
     private String username;
     private String password;
-    private int phone;
+    //private String phone;
     private String email;
 
     @Override
@@ -26,7 +26,7 @@ public class User {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", phone=" + phone +
+                //", phone=" + phone +
                 ", email='" + email + '\'' +
                 '}';
     }

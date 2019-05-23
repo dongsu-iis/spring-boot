@@ -3,15 +3,20 @@ server:
 
 spring:
   thymeleaf:
-    mode: HTML
+    mode: HTML5
+    encoding: UTF-8
+    cache: false
+
 
   datasource:
     # MySQL
     url: jdbc:mysql://localhost:3315/spring_boot
     username: user
     password: password
-    connectionProperties: useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
+    ## connectionProperties: useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
     driver-class-name: com.mysql.cj.jdbc.Driver
+    tomcat:
+      connection-properties: useUnicode=true&characterEncoding=UTF-8&serverTimezone=JST
 
   jpa:
     hibernate:
@@ -24,6 +29,7 @@ spring:
 
 logging:
   level:
-    root: info
-    com.ds: debug
+    root: warn
+    # org.springframewordk.web : warn
+    com.ds: warn
   file: logs/debug.log
